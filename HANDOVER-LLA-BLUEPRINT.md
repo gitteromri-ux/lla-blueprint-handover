@@ -228,3 +228,26 @@ Key commits: https://github.com/gitteromri-ux/lla-course-checkout/commit/8b313e9
 | Standing | Blueprint payment-record incident: multiple separately identified payment records inside each customer's CRM record (one per installment), not duplicate customer profiles. Unresolved; inspect per-customer payment identifiers before concluding. | knowledge projects/lla-blueprint-payment-record-incident |
 | Standing | Evidence rules: returned IDs, byte-identical files, API acceptance or events_received are never proof of a paid checkout, attributed conversion or a verified Golden chain. Say VERIFIED or UNVERIFIED explicitly. | memory preferences.evidence.payment_enrollment, clickid_evidence_guardrails |
 | Standing | Omri will not accept repeated Airwallex credential popups; reuse existing authorized access and uploaded payment-team material. Every Enroll CTA opens the pop-up checkout only, never a lead/application form. Reference ecommerce flow is IIBS (Biblical Hebrew -> Level 1 -> Get started right now), not Rosen. | memories preferences.agent.airwallex_access_reuse, projects.web_checkout.lla_course_flow |
+
+---
+
+## 10. GOLDEN RECURRING rule (frozen 2 Nov 2026, rank equal to Golden CAPI)
+
+**Rule:** On every LLA Blueprint checkout, the Airwallex Drop-In for any plan with more than one payment MUST receive `customer_id` (from the CRM response `Airwallex.customerId`), `mode: 'recurring'`, `recurringOptions` and `payment_consent` with `next_triggered_by: 'merchant'` and `merchant_trigger_reason: 'unscheduled'`, exactly as eTeacher's `GetECommerceFirstPaymentDetails.AirwallexOptions` prescribes. Pay-in-full stays `mode: 'payment'`. No agent changes, removes, reorders or redeploys these lines without Omri's literal written authorization in that conversation. Any release touching a checkout file must prove these hashes intact (or intentionally changed with his sentence) and re-verify the live HTML. "Recurring works" is only claimable with an Airwallex readout showing `payment_consent_id` on the intent.
+
+| Surface | Commit / tag | File | sha256 |
+|---|---|---|---|
+| www.longevitylifeacademy.com/checkout/ | Longevity-Academy.github.io `492bb0ee445d6d977d82a64d5e7ddbaac5081770`, tag `golden-recurring-20261102` | checkout/index.html | f29ca1a96445d8d9f1d06f3a94b157dfb62e466caf50b2df4026e7643dcc9040 |
+| www.longevitylifeacademy.com/blueprint/checkout.html | same | blueprint/checkout.html | ad45102f8ac4cf21d17e38aa315bdaba8ea4d96866143fa6542584fbb94c4363 |
+| longevitylifeacademy.pages.dev/checkout and /blueprint/checkout.html | lla-course-checkout `08cd3251c11a4e35291c91d59778231ebdf5d826`, tag `golden-recurring-20261102`, Cloudflare Pages deployment 916f29e4 | dist/checkout.html, dist/blueprint/checkout.html | 9a77ceb89f8ca0fc7d2132dfb34d834a11ae76f0d3d86e85450f17850b853fba |
+
+Live hashes matched these values at 2026-11-02 20:20 UTC on all four URLs.
+
+**Evidence:** staging CRM order 8068308 (student 11687346), intent `int_sgpvb7qw4hnsmm4fgv1`, customer `cus_sgpvb7qw4hnsmm3kwjv`. Before fix: `customer_payment_consents: []`. After confirming with the fixed payload: `payment_consent_id: cst_sgpvb7qw4hnsn6coqxb`, `payment_consent.next_triggered_by: merchant`, method `mtd_sgpvb7qw4hnsn6cooly` attached to the customer. Diffs: https://github.com/Longevity-Academy/Longevity-Academy.github.io/commit/492bb0ee445d6d977d82a64d5e7ddbaac5081770 and https://github.com/gitteromri-ux/lla-course-checkout/commit/08cd3251c11a4e35291c91d59778231ebdf5d826
+
+**Recorded fact:** installment orders paid before 2 Nov 2026 20:00 UTC have no consent on file; remaining installments are link-billed until eTeacher attaches consents.
+
+**Check command:**
+```bash
+for u in https://www.longevitylifeacademy.com/checkout/ https://www.longevitylifeacademy.com/blueprint/checkout.html https://longevitylifeacademy.pages.dev/checkout https://longevitylifeacademy.pages.dev/blueprint/checkout.html; do echo "$(curl -sL "$u?x=$RANDOM" | sha256sum | cut -c1-64) $u"; done
+```
